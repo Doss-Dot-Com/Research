@@ -72,8 +72,9 @@ export default {
         { label: "Device Password:", value: "*****", animatedValue: "", cursorVisible: false, cursorBlinking: true, blur: false, },
       ],
       info2: [
-        { value: 'You willingly gave away your information', animatedValue: "", cursorVisible: true, cursorBlinking: false, },
-        { value: 'Avoid it.', animatedValue: "", cursorVisible: false, cursorBlinking: true, }
+        { value: 'You just gave away your information', animatedValue: "", cursorVisible: true, cursorBlinking: false, },
+        { value: 'Avoid it.', animatedValue: "", cursorVisible: false, cursorBlinking: true, },
+        { value: 'BYU CyberSecurity Major Research Team', animatedValue: "", cursorVisible: false, cursorBlinking: true, }
 
       ],
 
@@ -89,7 +90,7 @@ export default {
   },
 
   methods: {
-    animateValue() {
+    animateInfoValue() {
       if (this.currentInfoIndex < this.info.length) {
         const infoItem = this.info[this.currentInfoIndex];
         let i = 0;
@@ -117,7 +118,7 @@ export default {
               // Non-last item
               this.currentInfoIndex++;
               this.info[this.currentInfoIndex].cursorVisible = true; // Activate cursor for the next item
-              setTimeout(this.animateValue, 500);
+              setTimeout(this.animateInfoValue, 500);
             } else {
               // Last item
               setTimeout(() => {
@@ -131,34 +132,35 @@ export default {
           animate();
         }
       }
+    },
 
-      if (this.currentInfoIndex < this.info2.length) {
-        const infoItem = this.info2[this.currentInfoIndex];
-        let i = 0
-        const speed = 20;
-        infoItem.animatedValue = "█";
+    animateInfo2Value() {
+  this.currentInfoIndex = 0; // Reset index for animating info2
+  const animateNextItem = () => {
+    if (this.currentInfoIndex < this.info2.length) {
+      const infoItem = this.info2[this.currentInfoIndex];
+      let i = 0;
+      infoItem.animatedValue = "█"; // Initialize animation with cursor
 
-        const animate = () => {
-          if (i < infoItem.value.length) {
-            infoItem.animatedValue =
-              infoItem.animatedValue.slice(0, i) + infoItem.value.charAt(i) + "█";
-            i++;
-            setTimeout(animate, speed);
-          } else {
-            infoItem.animatedValue = infoItem.animatedValue.slice(0, -1);
-            if (this.currentInfoIndex === this.info2.length - 1) {
-              infoItem.cursorBlinking = true;
-            }
-            if (this.currentInfoIndex < this.info2.length - 1) {
-              this.currentInfoIndex++;
-              this.info2[this.currentInfoIndex].cursorVisible = true;
-              setTimeout(this.animateValue, 500);
-            }
+      const animate = () => {
+        if (i < infoItem.value.length) {
+          infoItem.animatedValue = infoItem.animatedValue.slice(0, -1) + infoItem.value.charAt(i) + "█";
+          i++;
+          setTimeout(animate, 20); // Adjust timing as needed
+        } else {
+          // Once the animation for the current item is complete
+          infoItem.animatedValue = infoItem.animatedValue.slice(0, -1); // Remove cursor at the end
+          this.currentInfoIndex++; // Move to the next item
+          if (this.currentInfoIndex < this.info2.length) {
+            setTimeout(animateNextItem, 1000); // Add delay before starting next item
           }
         }
-
-      }
-    },
+      };
+      animate();
+    }
+  };
+  animateNextItem();
+},
 
     generateQRCode() {
       const size = 21; // Size of the QR code (for a Version 1 QR code)
@@ -360,11 +362,13 @@ export default {
   },
 
   mounted() {
-  this.animateValue(); // User information
+  this.animateInfoValue(); // User information
+
   setTimeout(() => {
       this.showUserInfo = false;
       this.showResearchByBYU = true;
-    }, 10000)
+      this.animateInfo2Value();
+    }, 10000); 
 
   setTimeout(() => {
     this.showResearchByBYU = false;
