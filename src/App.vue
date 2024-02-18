@@ -1,18 +1,15 @@
 <template>
-  <div>
+  <div class="landing-page" v-if="!hasScrolled">
     <div class="details-container">
       <div v-if="showUserInfo" class="info-container">
         <p>User Information:</p>
         <div class="grid-container">
           <div v-for="(item, index) in info" :key="index" class="info-item">
             <span class="label">{{ item.label }}</span>
-            <span
-              class="value typing"
-              :class="{
-                cursorVisible: item.cursorVisible,
-                cursorBlinking: item.cursorBlinking,
-              }"
-            >
+            <span class="value typing" :class="{
+              cursorVisible: item.cursorVisible,
+              cursorBlinking: item.cursorBlinking,
+            }">
               {{ item.animatedValue }}
             </span>
             <br />
@@ -21,53 +18,106 @@
         </div>
       </div>
 
-      <div v-for="(item, index) in info2" :key="index" v-if="showResearchByBYU"  class="matrix-style">
-        <span class="typing"
-        :class="{
+      <div v-for="(item, index) in info2" :key="index" v-if="showResearchByBYU" class="matrix-style">
+        <span class="typing" :class="{
           cursorVisible: item.cursorVisible,
-          cursorBlinking: item.cursorBlinking, 
+          cursorBlinking: item.cursorBlinking,
         }">
-           {{ item.animatedValue }}
+          {{ item.animatedValue }}
         </span>
       </div>
 
       <div v-if="generatingQRCode" class="qr-code-container wave">
         <div v-for="(row, rowIndex) in qrCodePattern" :key="rowIndex" class="qr-row">
-          <div
-            v-for="(cell, cellIndex) in row"
-            :key="cellIndex"
-            :class="{ 'qr-cell': true, filled: cell, wave: cell }"
-          ></div>
+          <div v-for="(cell, cellIndex) in row" :key="cellIndex" :class="{ 'qr-cell': true, filled: cell, wave: cell }">
+          </div>
         </div>
       </div>
-      
+
       <div v-if="showMatrixEffect" class="matrix-style">
         {{ animatedMatrixSentence }}
       </div>
-
     </div>
-    <br>
-    <div class="glowing-line top-line"></div>
   </div>
-
+<transition name="fade" mode="out-in">
+  <div class="content">
+    <div class="image-container">
+      <img :src="currentImage" alt="Slideshow Image" class="themed-image" />
+    </div>
+  </div>
+</transition>
 </template>
+
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import img1 from './assets/img/qrSample1.jpg';
+import img2 from './assets/img/qrSample2.jpg';
+import img3 from './assets/img/qrSample3.jpg';
+import img4 from './assets/img/qrSample4.jpeg';
+import img5 from './assets/img/qrSample5.jpg';
+import img6 from './assets/img/qrSample6.png';
+import img7 from './assets/img/qrSample7.jpg';
+import img8 from './assets/img/qrSample8.jpg';
+import img9 from './assets/img/qrSample9.jpg';
+import img10 from './assets/img/qrSample10.jpeg';
+import img11 from './assets/img/qrSample11.jpg';
+import img12 from './assets/img/qrSample12.jpg';
+import img13 from './assets/img/qrSample13.jpg';
+
+const images = [img1, img2, img3, img4, img5, img6, img7, img8, img9, img10, img11, img12, img13];
+const currentImage = ref(images[0]);
+let imageIndex = 0;
+
+function changeImage() {
+  imageIndex = (imageIndex + 1) % images.length;
+  currentImage.value = images[imageIndex];
+}
+
+const intervalTime = 300; // Adjusted for a more reasonable image change interval
+let intervalId;
+
+const hasScrolled = ref(false); // Corrected variable name
+
+function handleScroll() {
+  const scrollThreshold = 35;
+  hasScrolled.value = window.scrollY > scrollThreshold;
+  if (!intervalId) {
+    intervalId = setInterval(changeImage, intervalTime);
+  }
+  if (hasScrolled.value) {
+    document.documentElement.classList.add('content-visible');
+  } else {
+    document.documentElement.classList.remove('content-visible');
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll);
+  if (intervalId) {
+    clearInterval(intervalId);
+  }
+});
+</script>
 
 <script>
 import "./style.css";
-
 export default {
   data() {
     return {
       qrCodePattern: [],
       info: [
-        { label: "IP Address:", value: "10.37.196.70", animatedValue: "", cursorVisible: true, cursorBlinking: false, blur: false,},
+        { label: "IP Address:", value: "10.37.196.70", animatedValue: "", cursorVisible: true, cursorBlinking: false, blur: false, },
         { label: "City:", value: "Provo", animatedValue: "", cursorVisible: false, cursorBlinking: false, blur: false, },
         { label: "Region:", value: "Utah", animatedValue: "", cursorVisible: false, cursorBlinking: false, blur: false, },
-        { label: "ZIP Code:", value: "84604", animatedValue: "", cursorVisible: false, cursorBlinking: false, blur: false,},
+        { label: "ZIP Code:", value: "84604", animatedValue: "", cursorVisible: false, cursorBlinking: false, blur: false, },
         { label: "Country:", value: "USA", animatedValue: "", cursorVisible: false, cursorBlinking: false, blur: false, },
         { label: "School:", value: "Brigham Young University", animatedValue: "", cursorVisible: false, cursorBlinking: false, blur: false, },
-        { label: "Full Name:", value: "Target Victim", animatedValue: "",cursorVisible: false, cursorBlinking: false, blur: false, },
-        { label: "Phone Number:", value: "*************", animatedValue: "", cursorVisible: false, cursorBlinking: false, blur: false,},
+        { label: "Full Name:", value: "Target Victim", animatedValue: "", cursorVisible: false, cursorBlinking: false, blur: false, },
+        { label: "Phone Number:", value: "*************", animatedValue: "", cursorVisible: false, cursorBlinking: false, blur: false, },
         { label: "Email:", value: "************@*****.***", animatedValue: "", cursorVisible: false, cursorBlinking: false, blur: false, },
         { label: "Device Password:", value: "*****", animatedValue: "", cursorVisible: false, cursorBlinking: true, blur: false, },
       ],
@@ -82,7 +132,7 @@ export default {
       showAccessGranted: false,
       showUserInfo: true,
       showingMatrixAnimation: false,
-      showResearchByBYU: false, 
+      showResearchByBYU: false,
       generatingQRCode: false,
       matrixSentence: "Could you trust this QR code?",
       animatedMatrixSentence: "",
@@ -135,55 +185,50 @@ export default {
     },
 
     animateInfo2Value() {
-  this.currentInfoIndex = 0; // Reset index for animating info2
-  const animateNextItem = () => {
-    if (this.currentInfoIndex < this.info2.length) {
-      const infoItem = this.info2[this.currentInfoIndex];
-      let i = 0;
-      infoItem.animatedValue = "█"; // Initialize animation with cursor
+      this.currentInfoIndex = 0; // Reset index for animating info2
+      const animateNextItem = () => {
+        if (this.currentInfoIndex < this.info2.length) {
+          const infoItem = this.info2[this.currentInfoIndex];
+          let i = 0;
+          infoItem.animatedValue = "█"; // Initialize animation with cursor
 
-      const animate = () => {
-        if (i < infoItem.value.length) {
-          infoItem.animatedValue = infoItem.animatedValue.slice(0, -1) + infoItem.value.charAt(i) + "█";
-          i++;
-          setTimeout(animate, 20); // Adjust timing as needed
-        } else {
-          // Once the animation for the current item is complete
-          infoItem.animatedValue = infoItem.animatedValue.slice(0, -1); // Remove cursor at the end
-          this.currentInfoIndex++; // Move to the next item
-          if (this.currentInfoIndex < this.info2.length) {
-            setTimeout(animateNextItem, 1000); // Add delay before starting next item
-          }
+          const animate = () => {
+            if (i < infoItem.value.length) {
+              infoItem.animatedValue = infoItem.animatedValue.slice(0, -1) + infoItem.value.charAt(i) + "█";
+              i++;
+              setTimeout(animate, 20); // Adjust timing as needed
+            } else {
+              // Once the animation for the current item is complete
+              infoItem.animatedValue = infoItem.animatedValue.slice(0, -1); // Remove cursor at the end
+              this.currentInfoIndex++; // Move to the next item
+              if (this.currentInfoIndex < this.info2.length) {
+                setTimeout(animateNextItem, 1000); // Add delay before starting next item
+              }
+            }
+          };
+          animate();
         }
       };
-      animate();
-    }
-  };
-  animateNextItem();
-},
+      animateNextItem();
+    },
 
     generateQRCode() {
-      const size = 21; // Size of the QR code (for a Version 1 QR code)
-
-      // Initialize the QR code pattern with false values
+      const size = 21;
       this.qrCodePattern = Array.from({ length: size }, () =>
         Array.from({ length: size }, () => false)
       );
 
-      // Helper method to place a pattern into the qrCodePattern at the specified coordinates
       const placePattern = (qrCodePattern, pattern, startX, startY) => {
         for (let row = 0; row < pattern.length; row++) {
           for (let col = 0; col < pattern.length; col++) {
             const targetRow = startX + row;
             const targetCol = startY + col;
-            // Check bounds before assignment
             if (
               targetRow < qrCodePattern.length &&
               targetCol < qrCodePattern[targetRow].length
             ) {
               qrCodePattern[targetRow][targetCol] = pattern[row][col];
             } else {
-              // Log an error or handle the out-of-bounds issue
               console.error(
                 "Attempting to place pattern out of bounds:",
                 targetRow,
@@ -194,13 +239,11 @@ export default {
         }
       };
 
-      // Function to generate a pattern with a hollow square and a filled square in the center
       const generatePatternWithSmallBox = (patternSize, innerBoxSize) => {
         const pattern = Array.from({ length: patternSize }, () =>
           Array.from({ length: patternSize }, () => false)
         );
 
-        // Create the border
         for (let i = 0; i < patternSize; i++) {
           pattern[0][i] = true;
           pattern[patternSize - 1][i] = true;
@@ -208,7 +251,6 @@ export default {
           pattern[i][patternSize - 1] = true;
         }
 
-        // Create the filled center square
         const offset = (patternSize - innerBoxSize) / 2;
         for (let i = offset; i < offset + innerBoxSize; i++) {
           for (let j = offset; j < offset + innerBoxSize; j++) {
@@ -238,8 +280,8 @@ export default {
       }
 
       // Generate the finder and alignment patterns
-      const finderPattern = generatePatternWithSmallBox(7, 3); // Finder pattern size is 7x7 with a 3x3 filled square
-      const alignmentPattern = generatePatternWithSmallBox(5, 1); // Alignment pattern size is 5x5 with a 1x1 filled square
+      const finderPattern = generatePatternWithSmallBox(7, 3);
+      const alignmentPattern = generatePatternWithSmallBox(5, 1);
 
       // Place the finder patterns in the corners
       placePattern(this.qrCodePattern, finderPattern, 0, 0);
@@ -247,11 +289,7 @@ export default {
       placePattern(this.qrCodePattern, finderPattern, 0, size - 7);
 
       // Place the alignment pattern
-      placePattern(this.qrCodePattern, alignmentPattern, size - 8, size - 8); // Positioning at bottom right
-
-      // Function to generate a pattern with a hollow square and a filled square in the center
-      // Helper functions to determine if the cell is part of the finder or alignment patterns
-      // Iterate over the grid to set the finder and alignment patterns
+      placePattern(this.qrCodePattern, alignmentPattern, size - 8, size - 8);
     },
 
     generatePixels(imageSource, numPixelsWide, numPixelsTall, pixelSize) {
@@ -288,22 +326,7 @@ export default {
 
     startQRCodeGeneration() {
       this.generatingQRCode = true;
-        this.generateQRCode();
-        this.applyWaveEffect(); // Apply wave effect after QR code generation
-    },
-
-    applyWaveEffect() {
-      const waveDelay = 50;
-      for (let row = 0; row < this.qrCodePattern.length; row++) {
-        for (let col = 0; col < this.qrCodePattern[row].length; col++) {
-          let delay = (row + col) * waveDelay;
-          setTimeout(() => {
-            if (this.qrCodePattern[row][col]) {
-              this.qrCodePattern[row][col] = true; // Direct assignment works in Vue 3
-            }
-          }, delay);
-        }
-      }
+      this.generateQRCode();
     },
 
     eraseData() {
@@ -323,8 +346,8 @@ export default {
       const baseSentence = " you trust this QR code?"; // Added space before 'you'
       const words = ["Could", "Would", "Should"];
       let currentWordIndex = 0;
-      let animatedSentence = ''. padStart(words[0].length, ' ');
-      let index = 0; 
+      let animatedSentence = ''.padStart(words[0].length, ' ');
+      let index = 0;
 
       const scramble = () => {
         let finalWord;
@@ -336,7 +359,7 @@ export default {
 
         if (index < finalWord.length) {
           let randomChar; // Random char from ASCII range
-          if(Math.random() < 0.9) {
+          if (Math.random() < 0.9) {
             randomChar = finalWord.charAt(index);
           } else {
             randomChar = String.fromCharCode(65 + Math.random() * 26);
@@ -345,16 +368,16 @@ export default {
           animatedSentence = animatedSentence.substr(0, index) + randomChar + animatedSentence.substr(index + 1);
           this.animatedMatrixSentence = animatedSentence;
 
-          if(randomChar === finalWord.charAt(index)) {
+          if (randomChar === finalWord.charAt(index)) {
             index++;
           }
 
           setTimeout(scramble, 50); // Adjust the speed of animation here
         } else {
-            index = 0; 
-            currentWordIndex = (currentWordIndex + 1) % words.length;
-            animatedSentence = ''.padStart(words[currentWordIndex].length, ' ');
-            setTimeout(scramble, 2000);
+          index = 0;
+          currentWordIndex = (currentWordIndex + 1) % words.length;
+          animatedSentence = ''.padStart(words[currentWordIndex].length, ' ');
+          setTimeout(scramble, 2000);
         }
       };
       scramble();
@@ -362,25 +385,25 @@ export default {
   },
 
   mounted() {
-  this.animateInfoValue(); // User information
+    this.animateInfoValue(); // User information
 
-  setTimeout(() => {
+    setTimeout(() => {
       this.showUserInfo = false;
       this.showResearchByBYU = true;
       this.animateInfo2Value();
-    }, 10000); 
+    }, 10000);
 
-  setTimeout(() => {
-    this.showResearchByBYU = false;
-    this.showMatrixEffect = true; // Show Matrix Animation Container
-    this.showUserInfo = false; // Hide User Information
-
-    this.startQRCodeGeneration(); // Generate QR Code 
     setTimeout(() => {
-      this.startMatrixAnimation();
-    }, 500) // QR Code Sentence Generation 
-  }, 20000);
-},
+      this.showResearchByBYU = false;
+      this.showMatrixEffect = true; // Show Matrix Animation Container
+      this.showUserInfo = false; // Hide User Information
+
+      this.startQRCodeGeneration(); // Generate QR Code 
+      setTimeout(() => {
+        this.startMatrixAnimation();
+      }, 500) // QR Code Sentence Generation 
+    }, 20000);
+  },
 };
 </script>
 
@@ -395,6 +418,7 @@ export default {
   0% {
     background-position: 0% 50%;
   }
+
   100% {
     background-position: 100% 50%;
   }
@@ -404,20 +428,10 @@ export default {
   0% {
     background-position: 0% 50%;
   }
+
   100% {
     background-position: 100% 50%;
   }
-}
-
-.access-granted {
-  position: absolute;
-  font-family: "DinaRemaster", monospace;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 2rem;
-  color: #00d1d1; /* or any color you prefer */
-  /* Additional styling as needed */
 }
 
 .blur {
@@ -426,6 +440,24 @@ export default {
 
 .blur-effect {
   filter: blur(5px);
+}
+
+.content {
+  transition: transform 2s ease, opacity 2s ease;
+  opacity: 0;
+  transform: translateY(50vh);
+  pointer-events: none;
+}
+
+.content-visible .landing-page {
+  opacity: 0;
+  transform: translateY(50vh);
+}
+
+.content-visible .content {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: all;
 }
 
 .cyan-filtered-image {
@@ -454,14 +486,27 @@ export default {
     inset 0 0 10px rgba(0, 36, 36, 0.9), inset 0 0 70px rgba(0, 36, 36, 0.9);
 }
 
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 2s ease;
+}
+
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+}
 .glowing-line {
   position: absolute;
-  left: 50%; /* Start at the center of the container */
-  width: calc(50% + 100px); /* Adjust based on your content */
-  height: 2px; /* Thickness of the line */
-  background: rgba(0, 209, 209, 0.9); /* Line color */
-  box-shadow: 0 0 10px rgba(0, 209, 209, 0.9); /* Glow effect */
-  transform: translateX(-50%); /* Center align */
+  left: 50%;
+  /* Start at the center of the container */
+  width: calc(50% + 100px);
+  /* Adjust based on your content */
+  height: 2px;
+  /* Thickness of the line */
+  background: rgba(0, 209, 209, 0.9);
+  /* Line color */
+  box-shadow: 0 0 10px rgba(0, 209, 209, 0.9);
+  /* Glow effect */
+  transform: translateX(-50%);
+  /* Center align */
 }
 
 .glowing-text {
@@ -471,10 +516,12 @@ export default {
 
 .grid-container {
   display: grid;
-  grid-template-columns: auto 1fr; /* Adjust the column sizes as needed */
+  grid-template-columns: auto 1fr;
+  /* Adjust the column sizes as needed */
   grid-column-gap: 20px 1fr;
   line-height: 3.5px;
-  grid-row-gap: 5px; /* Adjust the row sizes as needed */
+  grid-row-gap: 5px;
+  /* Adjust the row sizes as needed */
   width: 360px;
 }
 
@@ -486,16 +533,30 @@ export default {
   display: center;
 }
 
+.image-container img {
+  width: 250px;
+  height: 250px;
+}
+
+.landing-page {
+  transition: opacity 2s ease, transform 2s ease;
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .label {
   font-family: "DinaRemaster", monospace;
-  grid-column: 1; /* Place the label in the first column */
+  grid-column: 1;
+  /* Place the label in the first column */
   display: flex;
-  align-items:center;
-  padding-right: 1em; /* Space between label and value */
+  align-items: center;
+  padding-right: 1em;
+  /* Space between label and value */
 }
 
 .matrix-style {
-  color: #00d1d1; /* Green text */
+  color: #00d1d1;
+  /* Green text */
   font-family: "DinaRemaster", monospace;
   background-color: 000;
   padding: 20px;
@@ -532,6 +593,11 @@ export default {
   animation: waveEffect 10s forwards;
 }
 
+.themed-image {
+  filter: contrast(1.1) saturate(0.9) brightness(1.2);
+  mix-blend-mode: luminosity;
+}
+
 .typing {
   font-family: "DinaRemaster", monospace;
   white-space: pre;
@@ -544,8 +610,10 @@ export default {
   content: "";
   position: absolute;
   right: 0;
-  color: rgba(0, 209, 209, 0.9); /* Color of your input field */
-  opacity: 1; /* Fully visible when shown */
+  color: rgba(0, 209, 209, 0.9);
+  /* Color of your input field */
+  opacity: 1;
+  /* Fully visible when shown */
   text-shadow: none;
 }
 
@@ -554,21 +622,26 @@ export default {
   position: absolute;
   right: 0;
   color: #001818;
-  visibility: visible; /* Initially hide the cursor */
+  visibility: visible;
+  /* Initially hide the cursor */
 }
 
 .typing.cursorBlinking::after {
   content: "█";
   position: relative;
   right: 0;
-  color: #002424; /* Color of your input field */
-  opacity: 1; /* Fully visible when shown */
+  color: #002424;
+  /* Color of your input field */
+  opacity: 1;
+  /* Fully visible when shown */
   animation: blink 1s step-end infinite;
-  visibility: hidden; /* Apply the blinking animation */
+  visibility: hidden;
+  /* Apply the blinking animation */
 }
 
 .typing.cursorVisible::after {
-  visibility: visible; /* Show the cursor when typing */
+  visibility: visible;
+  /* Show the cursor when typing */
 }
 
 .value {
@@ -577,17 +650,22 @@ export default {
   font-family: "DinaRemaster", monospace;
   background-color: rgba(0, 209, 209, 0.8);
   text-shadow: 0 0 1px #002424, 0 0 1px #002424;
-  box-shadow: 0 0 10px rgba(0, 209, 209, 0.4); /* Glow effect */
+  box-shadow: 0 0 10px rgba(0, 209, 209, 0.4);
+  /* Glow effect */
   border-radius: 2px;
   color: #002424;
   padding: 0.1rem 0.5rem;
   max-width: 210px;
   height: 20px;
   overflow: hidden;
-  grid-column: 2; /* Place the value in the second column */
-  text-align: left; /* Align the value text to the left */
-  white-space: nowrap; /* Prevent the value from wrappig */
+  grid-column: 2;
+  /* Place the value in the second column */
+  text-align: left;
+  /* Align the value text to the left */
+  white-space: nowrap;
+  /* Prevent the value from wrappig */
   text-overflow: ellipsis;
-  position: relative; /* For the cursor positioning */
+  position: relative;
+  /* For the cursor positioning */
 }
 </style>

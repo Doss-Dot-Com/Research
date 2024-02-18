@@ -4,6 +4,7 @@ import vue from '@vitejs/plugin-vue'
 // https://vitejs.dev/config/
 export default defineConfig({
   base: '/quishing',
+  origin: 'http://192.168.50.44',
   plugins: [vue()],
   server: {
     proxy: {
